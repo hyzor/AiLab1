@@ -4,6 +4,7 @@
 #define TIME_SPREADOUT 60
 
 #include <iostream>
+#include <map>
 
 #include "DeliveryManClient.h"
 #include "GridNode.h"
@@ -36,8 +37,8 @@ Location EdgePosFromNodes(GridNode* nodeA, GridNode* nodeB)
 {
 	Location pos;
 
-	pos.first = int(((float)nodeA->y + (float)nodeB->y) * 0.5f);
-	pos.second = nodeA->x + nodeB->x;
+	pos.second = int(((float)nodeA->y + (float)nodeB->y) * 0.5f);
+	pos.first = nodeA->x + nodeB->x;
 
 	return pos;
 }
@@ -68,7 +69,7 @@ std::vector<std::pair<int, int>> InitAndRunAStar(AStar<GridNode>* aStar, Locatio
 		// Get the start node to the solution
 		GridNode* node = aStar->GetSolutionStart();
 		GridNode* prevNode = node;
-		std::cout << node->x << " " << node->y << std::endl;
+		//std::cout << node->x << " " << node->y << std::endl;
 
 		while (node)
 		{
@@ -84,7 +85,7 @@ std::vector<std::pair<int, int>> InitAndRunAStar(AStar<GridNode>* aStar, Locatio
 
 			prevNode = node;
 
-			std::cout << node->x << " " << node->y << std::endl;
+			//std::cout << node->x << " " << node->y << std::endl;
 		}
 
 		// Assign the instructions to the van
@@ -97,6 +98,26 @@ std::vector<std::pair<int, int>> InitAndRunAStar(AStar<GridNode>* aStar, Locatio
 	}
 
 	return instructions;
+}
+
+void RouteVanAndSendInstructions(DM_Client* dm, VanInfo* van, AStar<GridNode>* aStar, Location locA, Location locB)
+{
+	// Start by clearing target van instructions
+	van->instructions.clear();
+
+	std::vector<std::pair<int, int>> curVanInstructions;
+	curVanInstructions = InitAndRunAStar(aStar, locA, locB);
+	//vanInstructions[targetVanIndex] = curVanInstructions;
+	//targetVan->instructions.push_back(Location()); // Push back dummy instruction to avoid further instructing this van
+
+	std::map<int, std::vector<std::pair<int, int>>> curVanInstructionsMap;
+	curVanInstructionsMap[van->Number] = curVanInstructions;
+
+	std::wstring output;
+
+	dm->sendInstructions(curVanInstructionsMap, output);
+	std::cout << "Instructions for van " << van->Number << " sent!" << std::endl;
+	std::wcout << output << std::endl;
 }
 
 int main()
@@ -121,7 +142,7 @@ int main()
 
 		for (unsigned int j = 0; j < nodes[i].size(); ++j)
 		{
-			GridNode* gridNode = new GridNode(j, i, nodes[i][j]);
+			GridNode* gridNode = new GridNode(i, j, nodes[i][j]);
 			gridNodes.push_back(gridNode);
 
 			gridNodes_2D[i].push_back(gridNode);
@@ -134,6 +155,17 @@ int main()
 	std::vector<DeliveryInfo> waitingDeliveries;			//	The delivery information for each waiting (not yet picked up) delivery (see above).
 	std::vector<DeliveryInfo> activeDeliveries;				//	The delivery information for each active (currently on a van) delivery (see above).
 	std::vector<std::pair<int, int>> completedDeliveries;	//	The delivery number and time taken for each completed delivery.
+
+	std::map<int, int> vanDeliveryMap; // Mapping between a delivery number and van ID
+	std::map<int, int> curVanDelivery; // Current delivery assigned to a van
+
+	dm.getInformation(time, *Edges, Vans, waitingDeliveries, activeDeliveries, completedDeliveries, output);
+
+	// There currently are no assigned deliveries to any van
+	for (unsigned int i = 0; i < Vans.size(); ++i)
+	{
+		curVanDelivery[Vans[i].Number] = -1;
+	}
 
 	std::vector<AStar<GridNode>*> aStar;
 	for (int i = 0; i < NUM_VANS; ++i)
@@ -155,7 +187,7 @@ int main()
 		completedDeliveries.clear();
 
 		dm.getInformation(time, *Edges, Vans, waitingDeliveries, activeDeliveries, completedDeliveries, output);
-		std::wcout << output << std::endl;
+		//std::wcout << output << std::endl;
 
 		// There are no deliveries to be done the during the first 60 seconds, try to spread out the vans
 		if (time < TIME_SPREADOUT)
@@ -166,12 +198,32 @@ int main()
 			continue;
 		}
 
-		std::map<int, std::vector<std::pair<int, int>>> vanInstructions;
+		//std::map<int, std::vector<std::pair<int, int>>> vanInstructions;
+
+		// Keep the previous van instructions
+		/*
+		for (unsigned int i = 0; i < Vans.size(); ++i)
+		{
+			VanInfo* curVan = &Vans[i];
+			vanInstructions[i] = Vans[i].instructions;
+		}
+		*/
 
 		// Manage all the waiting deliveries
 		for (unsigned int i = 0; i < waitingDeliveries.size(); ++i)
 		{
 			DeliveryInfo* curDelivery = &waitingDeliveries[i];
+
+// 			if (vanDeliveryMap[curDelivery->Number] != NULL || vanDeliveryMap[curDelivery->Number] != -1)
+// 			{
+// 				continue;
+// 			}
+
+			// The delivery was found to have been assigned to a van
+			if (vanDeliveryMap.count(curDelivery->Number) == 1 && vanDeliveryMap[curDelivery->Number] != -1)
+			{
+				continue;
+			}
 
 			// We have to find a suitable van for this delivery (find the closest van)
 			VanInfo* targetVan = nullptr;
@@ -207,10 +259,28 @@ int main()
 			// We now have found the closest available van, route it to this pick-up location
 			if (targetVan)
 			{
+				/*
+				// Start by clearing target van instructions
+				targetVan->instructions.clear();
+
 				std::vector<std::pair<int, int>> curVanInstructions;
 				curVanInstructions = InitAndRunAStar(aStar[targetVanIndex], targetVan->location, curDelivery->pickUp);
 				vanInstructions[targetVanIndex] = curVanInstructions;
-				targetVan->instructions.push_back(Location()); // Push back dummy instruction to avoid further instructing this van
+				//targetVan->instructions.push_back(Location()); // Push back dummy instruction to avoid further instructing this van
+
+				std::map<int, std::vector<std::pair<int, int>>> curVanInstructionsMap;
+				curVanInstructionsMap[targetVanIndex] = curVanInstructions;
+
+				dm.sendInstructions(curVanInstructionsMap, output);
+				std::wcout << output << std::endl;
+				std::cout << "Instructions for van " << targetVan->Number << " sent!" << std::endl;
+				*/
+
+				RouteVanAndSendInstructions(&dm, targetVan, aStar[targetVan->Number], targetVan->location, curDelivery->pickUp);
+
+				// Also tell the application that this van is instructed to this package
+				vanDeliveryMap[waitingDeliveries[i].Number] = targetVan->Number;
+				curVanDelivery[targetVan->Number] = waitingDeliveries[i].Number;
 			}
 		}
 
@@ -240,17 +310,118 @@ int main()
 				// If the delivery drop off location is valid (and does exist), proceed to A*-route the van to this location
 				if (deliveryDropOffLoc.first != -1 && deliveryDropOffLoc.second != -1)
 				{
-					std::vector<std::pair<int, int>> curVanInstructions;
-					curVanInstructions = InitAndRunAStar(aStar[i], curVan->location, deliveryDropOffLoc);
-					vanInstructions[i] = curVanInstructions;
-					curVan->instructions.push_back(Location()); // Push back dummy instruction to avoid further instructing this van
+
+					//std::vector<std::pair<int, int>> curVanInstructions;
+					//curVanInstructions = InitAndRunAStar(aStar[i], curVan->location, deliveryDropOffLoc);
+					//vanInstructions[i] = curVanInstructions;
+					//curVan->instructions.push_back(Location()); // Push back dummy instruction to avoid further instructing this van
+
+					RouteVanAndSendInstructions(&dm, curVan, aStar[curVan->Number], curVan->location, deliveryDropOffLoc);
+					//curVanDelivery[curVan->Number] = curVan->cargo;
+				}
+			}
+
+			// The van has no cargo and no instructions, but a delivery assigned to it
+			if (curVan->cargo == -1 && curVan->instructions.size() == 0 && curVanDelivery[curVan->Number] != -1)
+			{
+				DeliveryInfo* curDelivery = nullptr;
+				// Find the delivery object
+				for (unsigned int j = 0; j < waitingDeliveries.size(); ++j)
+				{
+					if (waitingDeliveries[j].Number == curVanDelivery[curVan->Number])
+					{
+						curDelivery = &waitingDeliveries[j];
+						break;
+					}
+				}
+
+				if (curDelivery)
+				{
+					RouteVanAndSendInstructions(&dm, curVan, aStar[curVan->Number], curVan->location, curDelivery->pickUp);
+				}
+			}
+
+			// The van accidentally picked up a cargo on its way to pick up another cargo
+			// Re-route to drop off this cargo instead
+			if (curVan->cargo != -1 && curVanDelivery[curVan->Number] != curVan->cargo)
+			{
+				// Unassign the current delivery job first
+				for (unsigned int j = 0; j < waitingDeliveries.size(); ++j)
+				{
+					if (waitingDeliveries[j].Number == curVanDelivery[curVan->Number])
+					{
+						vanDeliveryMap[waitingDeliveries[j].Number] = -1;
+						break;
+					}
+				}
+
+				DeliveryInfo* activeDelivery = nullptr;
+
+				for (unsigned int j = 0; j < activeDeliveries.size(); ++j)
+				{
+					if (activeDeliveries[j].Number == curVan->cargo)
+					{
+						activeDelivery = &activeDeliveries[j];
+						break;
+					}
+				}
+
+				if (activeDelivery)
+				{
+					RouteVanAndSendInstructions(&dm, curVan, aStar[curVan->Number], curVan->location, activeDelivery->dropOff);
+				}
+			}
+
+			// The van has cargo and no instructions, and the assigned delivery to it is different than its cargo
+			if (curVan->cargo != -1 && curVan->instructions.size() == 0 && curVan->cargo != curVanDelivery[curVan->Number])
+			{
+				// Unassign the current delivery job first
+				for (unsigned int j = 0; j < waitingDeliveries.size(); ++j)
+				{
+					if (waitingDeliveries[j].Number == curVanDelivery[curVan->Number])
+					{
+						vanDeliveryMap[waitingDeliveries[j].Number] = -1;
+						break;
+					}
+				}
+
+				DeliveryInfo* activeDelivery = nullptr;
+
+				for (unsigned int j = 0; j < activeDeliveries.size(); ++j)
+				{
+					if (activeDeliveries[j].Number == curVan->cargo)
+					{
+						activeDelivery = &activeDeliveries[j];
+						break;
+					}
+				}
+
+				if (activeDelivery)
+				{
+					RouteVanAndSendInstructions(&dm, curVan, aStar[curVan->Number], curVan->location, activeDelivery->dropOff);
 				}
 			}
 		}
 
 		// Finish the loop by sending all the new instructions
-		dm.sendInstructions(vanInstructions, output);
-		std::wcout << output << std::endl;
+		//dm.sendInstructions(vanInstructions, output);
+		//std::wcout << output << std::endl;
+
+		for (unsigned int i = 0; i < Vans.size(); ++i)
+		{
+			std::cout << "Van " << Vans[i].Number << ": " << "x: " << Vans[i].location.first << " y: " 
+				<< Vans[i].location.second << " cargo: " << Vans[i].cargo 
+				<< " instructions: " << Vans[i].instructions.size() << 
+				" delivery: " << curVanDelivery[Vans[i].Number] << std::endl;
+		}
+
+		std::cout << "Completed deliveries: " << completedDeliveries.size() << std::endl;
+
+		// All the deliveries has been completed, exit loop
+		if (completedDeliveries.size() == 20)
+		{
+			break;
+		}
 	}
 
 	// Clean-up
