@@ -1,53 +1,23 @@
-﻿Build started 2014-09-17 11:51:18.
-     1>Project "X:\Documents\Visual Studio 2010\Projects\Lab1\Lab1\Lab1.vcxproj" on node 2 (build target(s)).
+﻿Build started 2014-09-26 01:55:32.
+     1>Project "E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Lab1\Lab1.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
-         Touching "Debug\Lab1.unsuccessfulbuild".
+         Creating "Debug\Lab1.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
-         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src\AStar.cpp
-         AStar.cpp
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2649: 'typename' : is not a 'class'
-                 x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(13) : see reference to class template instantiation 'AStar<UserState>::Node' being compiled
-                 x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(52) : see reference to class template instantiation 'AStar<UserState>' being compiled
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2146: syntax error : missing ';' before identifier 'mUserState'
-                 x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.cpp(3) : see reference to class template instantiation 'AStar<UserState>::Node' being compiled
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2079: 'AStar<UserState>::Node::UserState' uses undefined class 'UserState'
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.cpp(21): warning C4018: '<' : signed/unsigned mismatch
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2146: syntax error : missing ';' before identifier 'mUserState'
-                 x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.cpp(24) : see reference to class template instantiation 'AStar<UserState>::Node' being compiled
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2079: 'AStar<UserState>::Node::UserState' uses undefined class 'UserState'
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.cpp(28): warning C4018: '<' : signed/unsigned mismatch
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2146: syntax error : missing ';' before identifier 'mUserState'
-                 x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.cpp(44) : see reference to class template instantiation 'AStar<UserState>::Node' being compiled
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C2079: 'AStar<UserState>::Node::UserState' uses undefined class 'UserState'
-                 with
-                 [
-                     UserState=UserState
-                 ]
-     1>x:\documents\visual studio 2010\projects\lab1\lab1\src\astar.h(25): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
-     1>Done Building Project "X:\Documents\Visual Studio 2010\Projects\Lab1\Lab1\Lab1.vcxproj" (build target(s)) -- FAILED.
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt src\main.cpp
+         main.cpp
+       Link:
+         D:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Debug\Lab1.exe" /INCREMENTAL:NO /NOLOGO DeliveryManClient_d.lib DeliveryManEngine_d.lib "http headers_d.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\Lab1.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Debug\Lab1.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Debug\Lab1.lib" /MACHINE:X86 Debug\AStar.obj
+         Debug\GridNode.obj
+         Debug\main.obj
+     1>AStar.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/INCREMENTAL:NO' specification
+         Lab1.vcxproj -> E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Debug\Lab1.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Debug\Lab1.exe;#1" /manifest Debug\Lab1.exe.intermediate.manifest
+       FinalizeBuildStatus:
+         Deleting file "Debug\Lab1.unsuccessfulbuild".
+         Touching "Debug\Lab1.lastbuildstate".
+     1>Done Building Project "E:\Dev\Projects\Git\VS2013\AiLab1\AStar_Impl_JesperHF\Lab1\Lab1\Lab1.vcxproj" (build target(s)).
 
-Build FAILED.
+Build succeeded.
 
-Time Elapsed 00:00:00.50
+Time Elapsed 00:00:00.96
