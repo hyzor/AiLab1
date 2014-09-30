@@ -59,6 +59,8 @@ public:
 	void ClearUnusedNodes();
 	void ClearAllNodes();
 
+	void ClearSolutionNodes();
+
 	bool AddSuccessor(UserState& state);
 
 	UserState* GetSolutionStart();

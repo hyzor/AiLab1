@@ -25,7 +25,9 @@ float GridNode::GoalDistanceEstimate(GridNode& goalNode)
 	float xDist = float((float)x - (float)goalNode.x);
 	float yDist = float((float)y - (float)goalNode.y);
 
-	return xDist + yDist;
+	return std::abs(xDist) + std::abs(yDist);
+
+	//return xDist + yDist;
 }
 
 bool GridNode::IsGoalNode(GridNode& goalNode)
@@ -109,11 +111,11 @@ bool GridNode::GetSuccessors(AStar<GridNode>* aStar, GridNode* parentNode)
 
 float GridNode::GetCost(GridNode& successors)
 {
-	int edgeX, edgeY;
+	unsigned int edgeX, edgeY;
 // 	edgeX = int(((float)x + (float)successors.x) * 0.5f);
 // 	edgeY = y + successors.y;
 
-	edgeX = int(((float)y + (float)successors.y) * 0.5f);
+	edgeX = unsigned int(((float)y + (float)successors.y) * 0.5f);
 	edgeY = x + successors.x;
 
 	if (edgeY >= mEdges->size())
@@ -122,8 +124,10 @@ float GridNode::GetCost(GridNode& successors)
 	if (edgeX >= mEdges->at(edgeY).size())
 		edgeX = mEdges->at(edgeY).size() - 1;
 
+	float cost = (float)mEdges->at(edgeY).at(edgeX);
+
 	//return (float)mEdges[edgeY][edgeX];
-	return (float)mEdges->at(edgeY).at(edgeX);
+	return cost;
 }
 
 bool GridNode::IsSameState(GridNode& rhs)

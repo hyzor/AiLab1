@@ -41,11 +41,11 @@ AStar<UserState>::~AStar()
 	}
 	mOpenNodeList.clear();
 
-	if (mStartNode)
-		delete mStartNode;
-
-	if (mGoalNode)
-		delete mGoalNode;
+// 	if (mStartNode)
+// 		delete mStartNode;
+// 
+// 	if (mGoalNode)
+// 		delete mGoalNode;
 }
 
 template <class UserState>
@@ -112,12 +112,13 @@ unsigned int AStar<UserState>::SearchStep()
 			Node* childNode = mGoalNode;
 			Node* parentNode = mGoalNode->mParent;
 
-			while (childNode != mStartNode)
+			do 
 			{
 				parentNode->mChild = childNode;
 				childNode = parentNode;
 				parentNode = parentNode->mParent;
-			}
+
+			} while (childNode != mStartNode);
 		}
 
 		ClearUnusedNodes();
@@ -308,6 +309,32 @@ void AStar<UserState>::ClearUnusedNodes()
 	mClosedNodeList.clear();
 }
 
+
+template <class UserState>
+void AStar<UserState>::ClearSolutionNodes()
+{
+	Node* node = mStartNode;
+
+	if (mStartNode->mChild)
+	{
+		do 
+		{
+			Node* del = node;
+			node = node->mChild;
+			delete del; // FreeNode(del)
+			del = nullptr;
+
+		} while (node != mGoalNode);
+
+		// Free goal node
+		delete node; // FreeNode(del)
+	}
+	else
+	{
+		delete mStartNode; // FreeNode(mStartNode)
+		delete mGoalNode; // FreeNode(mGoalNode)
+	}
+}
 
 template <class UserState>
 bool AStar<UserState>::AddSuccessor(UserState& state)
